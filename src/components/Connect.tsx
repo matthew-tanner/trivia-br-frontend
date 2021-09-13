@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { socket } from "../App";
+//import { socket } from "../App";
 
 class Connect extends Component {
   componentDidMount() {
