@@ -6,11 +6,11 @@ import { socket } from "../App";
 interface LoginState {
   email: string,
   password: string,
-  redirect: number
+  redirect: number,
 }
 
 interface LoginProps {
-  auth: string
+  auth: string,
 }
 
 export class Login extends Component<LoginProps, LoginState> {

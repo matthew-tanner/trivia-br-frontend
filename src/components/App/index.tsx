@@ -6,6 +6,7 @@ import Home from "../Home";
 import MenuAppBar from "../Menu";
 import { Register } from "../Register";
 import { Login } from "../Login";
+import {Game} from "../Game";
 
 export const socket = io(`http://localhost:3000`);
 
@@ -13,15 +14,11 @@ socket.on("connect", () => {
   console.log("connected", socket.id);
 });
 
-interface AppProps{
-  sessionToken: string,
-}
-
 interface AppState {
-  sessionToken: AppProps
+  sessionToken: string
 }
 
-class App extends React.Component<AppProps, AppState> {
+class App extends React.Component<{}, AppState> {
   render() {
     return (
       <Container>
@@ -32,9 +29,8 @@ class App extends React.Component<AppProps, AppState> {
               <Home />
             </Route>
             <Route exact path="/register" component={Register}></Route>
-            <Route exact path="/login" component={() => <Login auth={this.props.sessionToken}/>}></Route>
-            <Route exact path="/join">
-              <h1>Join Session Component</h1>
+            <Route exact path="/login" component={() => <Login auth={this.state.sessionToken}/>}></Route>
+            <Route exact path="/join" component={Game}>
             </Route>
             <Route exact path="/dashboard">
               <h1>Dashboard Component</h1>
