@@ -4,13 +4,14 @@ import { Redirect } from "react-router-dom";
 import { socket } from "../App";
 
 interface LoginState {
-  email: string,
-  password: string,
-  redirect: number,
+  email: string;
+  password: string;
+  redirect: number;
 }
 
 interface LoginProps {
-  auth: string,
+  token: string;
+  updateToken: (newToken: string) => void;
 }
 
 export class Login extends Component<LoginProps, LoginState> {
@@ -18,28 +19,24 @@ export class Login extends Component<LoginProps, LoginState> {
     email: "",
     password: "",
     redirect: 0,
-  }
+  };
 
   handleSubmit() {
+    const { email, password } = this.state;
 
-    const {email, password } = this.state
-
-    socket.emit(
-      "login",
-      { email: email, password: password },
-      (response: any) => {
-        console.log(response);
-        this.setState({redirect: response.status})
-      }
-    );
+    socket.emit("login", { email: email, password: password }, (response: any) => {
+      console.log(response.sessionToken);
+      this.setState({ redirect: response.status });
+      this.props.updateToken(response.sessionToken);
+    });
   }
 
   render() {
     const formStyle = { padding: "30px 20px", width: 300, margin: "20px auto" };
     const buttonStyle = { marginTop: "10px" };
-    if (this.state.redirect === 1){
+    if (this.state.redirect === 1) {
       console.log("successful login");
-      return <Redirect to="/"/>
+      return <Redirect to="/" />;
     }
     return (
       <Grid container alignItems="center">

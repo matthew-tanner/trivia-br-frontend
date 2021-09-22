@@ -6,31 +6,34 @@ import IconButton from "@material-ui/core/IconButton";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import {Link } from "react-router-dom";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { Link, Redirect } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      width: "100%"
+      width: "100%",
     },
     title: {
       flexGrow: 1,
-      textDecoration: "none"
+      textDecoration: "none",
     },
     header: {
       textColor: "white",
-    }
-  }),
+    },
+  })
 );
 
-export default function MenuAppBar() {
+interface MenuAppBarProps {
+  token: string;
+  clearToken: () => void;
+}
+
+export default function MenuAppBar(props: MenuAppBarProps) {
   const classes = useStyles();
-  const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,23 +43,40 @@ export default function MenuAppBar() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    props.clearToken();
+  };
+
   return (
     <div className={classes.root}>
       <AppBar className={classes.header}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-          <Link style={{ textDecoration: "none", color:"white"}} to="/">Yet Another Trivia Game</Link>
+            <Link style={{ textDecoration: "none", color: "white" }} to="/">
+              YATG
+            </Link>
           </Typography>
+
           <Typography variant="h6" className={classes.title}>
-          <Link style={{ textDecoration: "none", color:"white"}} to="/join">Join Session</Link>
+            <Link style={{ textDecoration: "none", color: "white" }} to="/join">
+              Join Session
+            </Link>
           </Typography>
-          <Typography variant="h6" className={classes.title}>
-          <Link style={{ textDecoration: "none", color:"white"}} to="/register">Register</Link>
-          </Typography>
-          <Typography variant="h6" className={classes.title}>
-          <Link style={{ textDecoration: "none", color:"white"}} to="/login">Login</Link>
-          </Typography>
-          {auth && (
+          {!props.token && (
+            <>
+              <Typography variant="h6" className={classes.title}>
+                <Link style={{ textDecoration: "none", color: "white" }} to="/register">
+                  Register
+                </Link>
+              </Typography>
+              <Typography variant="h6" className={classes.title}>
+                <Link style={{ textDecoration: "none", color: "white" }} to="/login">
+                  Login
+                </Link>
+              </Typography>
+            </>
+          )}
+          {props.token && (
             <div>
               <IconButton
                 aria-label="account of current user"
@@ -71,19 +91,25 @@ export default function MenuAppBar() {
                 id="menu-appbar"
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 open={open}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}><Link style={{ textDecoration: "none", color:"black"}} to="/register">Register</Link></MenuItem>
-                <MenuItem onClick={handleClose}><Link style={{ textDecoration: "none", color:"black"}} to="/dashboard">Dashboard</Link></MenuItem>
+                <MenuItem onClick={handleClose}>
+                  <Link style={{ textDecoration: "none", color: "black" }} to="/dashboard">
+                    Dashboard
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  <Typography onClick={handleLogout}>Logout</Typography>
+                </MenuItem>
               </Menu>
             </div>
           )}

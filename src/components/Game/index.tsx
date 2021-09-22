@@ -53,10 +53,10 @@ export class Game extends Component<{}, GameState> {
     return (
       <Grid container alignItems="center">
         <Button type="submit" variant="contained" color="primary" style={buttonStyle} onClick={() => this.handleSubmit("create")}>
-          Create Room{" "}
+          Create Game{" "}
         </Button>
         <Button type="submit" variant="contained" color="primary" style={buttonStyle} onClick={() => this.handleSubmit("join")}>
-          Join Room{" "}
+          Join Game{" "}
         </Button>
         <TextField
               fullWidth
