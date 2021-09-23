@@ -7,7 +7,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { Link, Redirect } from "react-router-dom";
+import { Link} from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,14 +52,8 @@ export default function MenuAppBar(props: MenuAppBarProps) {
       <AppBar className={classes.header}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Link style={{ textDecoration: "none", color: "white" }} to="/">
+            <Link style={{ textDecoration: "none", color: "white" }} to="/home">
               YATG
-            </Link>
-          </Typography>
-
-          <Typography variant="h6" className={classes.title}>
-            <Link style={{ textDecoration: "none", color: "white" }} to="/join">
-              Join Session
             </Link>
           </Typography>
           {!props.token && (

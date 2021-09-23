@@ -3,22 +3,19 @@ import { Button, Card, Grid, TextField } from "@material-ui/core/";
 import { socket } from "../App";
 import { Redirect } from "react-router";
 
-interface HomeState {
+interface DashboardState {
   gameId: string;
   joinGameId: string;
-  displayName: string
 }
 
-interface HomeProps {
-  gameId: string;
+interface DashboardProps {
+  gameId: string
   setGameId(id: string): void
-  setDisplayName(name: string): void
 }
-export class Home extends Component<HomeProps, HomeState> {
+export class Dashboard extends Component<DashboardProps, DashboardState> {
   state = {
     gameId: "",
-    joinGameId: "",
-    displayName: "",
+    joinGameId: ""
   };
 
   handleSubmit(e: string) {
@@ -28,44 +25,38 @@ export class Home extends Component<HomeProps, HomeState> {
         
         this.setState({ gameId: response.gameId });
         this.props.setGameId(response.gameId);
-        return (
-          <Redirect
-            to={{
-              pathname: "/game",
-            }}
-          />
-        );
       });
     } else {
-      socket.emit("joingame", { gameId: this.state.joinGameId, displayName: this.state.displayName }, (response: any) =>{
+      socket.emit("joingame", { gameId: this.state.joinGameId }, (response: any) =>{
         console.log(`game joined with id - ${response.gameId}`);
         this.props.setGameId(response.gameId);
-        this.props.setDisplayName(this.state.displayName)
-        return (
-          <Redirect
-            to={{
-              pathname: "/game",
-            }}
-          />
-        );
       });
     }
   }
 
   render() {
     const buttonStyle = { marginTop: "10px" };
-    // if (this.props.gameId) {
-    //   return (
-    //     <Redirect
-    //       to={{
-    //         pathname: "/game",
-    //       }}
-    //     />
-    //   );
-    // }
+    if (this.props.gameId) {
+      return (
+        <Redirect
+          to={{
+            pathname: "/game",
+          }}
+        />
+      );
+    }
     return (
       <Card>
         <Grid container alignItems="center">
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            style={buttonStyle}
+            onClick={() => this.handleSubmit("create")}
+          >
+            Create Game{" "}
+          </Button>
           <Button
             type="submit"
             variant="contained"
@@ -77,16 +68,8 @@ export class Home extends Component<HomeProps, HomeState> {
           </Button>
           <TextField
               fullWidth
-              label="Display Name"
-              placeholder="enter display name"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                this.setState({ displayName: e.currentTarget.value });
-              }}
-            />
-          <TextField
-              fullWidth
-              label="Game Id"
-              placeholder="enter game id"
+              label="Email"
+              placeholder="valid email address required"
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 this.setState({ joinGameId: e.currentTarget.value });
               }}

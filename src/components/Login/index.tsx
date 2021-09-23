@@ -12,6 +12,8 @@ interface LoginState {
 interface LoginProps {
   token: string;
   updateToken: (newToken: string) => void;
+  setUserId: (id: number) => void;
+  setDisplayName: (name: string) => void;
 }
 
 export class Login extends Component<LoginProps, LoginState> {
@@ -28,6 +30,8 @@ export class Login extends Component<LoginProps, LoginState> {
       console.log(response.sessionToken);
       this.setState({ redirect: response.status });
       this.props.updateToken(response.sessionToken);
+      this.props.setUserId(response.userId);
+      this.props.setDisplayName(response.displayName);
     });
   }
 
