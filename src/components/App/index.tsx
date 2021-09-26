@@ -21,6 +21,7 @@ interface AppState {
   gameId: string;
   userId: number;
   displayName: string;
+  inGame: boolean;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -31,6 +32,7 @@ class App extends React.Component<AppProps, AppState> {
       gameId: "",
       userId: 0,
       displayName: "",
+      inGame: false,
     };
 
     this.updateToken = this.updateToken.bind(this);
@@ -38,6 +40,7 @@ class App extends React.Component<AppProps, AppState> {
     this.setGameId = this.setGameId.bind(this);
     this.setUserId = this.setUserId.bind(this);
     this.setDisplayName = this.setDisplayName.bind(this);
+    this.setInGame = this.setInGame.bind(this);
   }
   updateToken(newToken: string) {
     localStorage.setItem("token", newToken);
@@ -47,7 +50,11 @@ class App extends React.Component<AppProps, AppState> {
   clearToken() {
     console.log("test");
     localStorage.removeItem("token");
-    this.setState({ token: "" });
+    this.setState({ 
+      token: "",
+      displayName: "",
+      userId: 0
+    });
   }
 
   setGameId(id: string) {
@@ -62,9 +69,20 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ displayName: name });
   }
 
+  setInGame() {
+    this.state.inGame ? this.setState({inGame: false}) : this.setState({inGame: true})
+  }
+
   componentDidMount() {
     if (localStorage.getItem("token") !== "null") {
       this.setState({ token: localStorage.getItem("token") || "" });
+      socket.emit("userinfo", {token: localStorage.getItem("token")}, (response: any) =>{
+        console.log(response);
+        this.setState({
+          userId: response.userId,
+          displayName: response.displayName
+        })
+      })
     }
   }
 
@@ -98,9 +116,9 @@ class App extends React.Component<AppProps, AppState> {
             <Route
               exact
               path="/dashboard"
-              component={() => <Dashboard gameId={this.state.gameId} setGameId={this.setGameId} />}
+              component={() => <Dashboard gameId={this.state.gameId} userId={this.state.userId} setGameId={this.setGameId} setInGame={this.setInGame} />}
             ></Route>
-            <Route exact path="/game" component={() => <Game gameId={this.state.gameId} />} />
+            <Route exact path="/game" component={() => <Game gameId={this.state.gameId} inGame={this.state.inGame} userId={this.state.userId} displayName={this.state.displayName}/>} />
             <Redirect to="/" />
           </Switch>
         </div>

@@ -40,7 +40,7 @@ export class Login extends Component<LoginProps, LoginState> {
     const buttonStyle = { marginTop: "10px" };
     if (this.state.redirect === 1) {
       console.log("successful login");
-      return <Redirect to="/" />;
+      return <Redirect to="/dashboard" />;
     }
     return (
       <Grid container alignItems="center">
