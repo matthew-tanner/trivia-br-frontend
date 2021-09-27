@@ -15,6 +15,18 @@ socket.on("connect", () => {
   console.log("connected", socket.id);
 });
 
+interface User {
+  userId: number;
+  displayName: string;
+}
+
+interface Question {
+  question: string;
+  type: string;
+  answer: string;
+  answers: Array<string>
+}
+
 interface AppProps {}
 interface AppState {
   token: string;
@@ -22,6 +34,10 @@ interface AppState {
   userId: number;
   displayName: string;
   inGame: boolean;
+  userList: User[];
+  isHost: boolean;
+  gameStarted: boolean;
+  questions: Question[];
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -33,6 +49,10 @@ class App extends React.Component<AppProps, AppState> {
       userId: 0,
       displayName: "",
       inGame: false,
+      userList: [],
+      isHost: false,
+      gameStarted: false,
+      questions: []
     };
 
     this.updateToken = this.updateToken.bind(this);
@@ -41,6 +61,10 @@ class App extends React.Component<AppProps, AppState> {
     this.setUserId = this.setUserId.bind(this);
     this.setDisplayName = this.setDisplayName.bind(this);
     this.setInGame = this.setInGame.bind(this);
+    this.setUserList = this.setUserList.bind(this);
+    this.loadGame = this.loadGame.bind(this);
+    this.setIsHost = this.setIsHost.bind(this);
+    this.setGameStarted = this.setGameStarted.bind(this);
   }
   updateToken(newToken: string) {
     localStorage.setItem("token", newToken);
@@ -50,10 +74,10 @@ class App extends React.Component<AppProps, AppState> {
   clearToken() {
     console.log("test");
     localStorage.removeItem("token");
-    this.setState({ 
+    this.setState({
       token: "",
       displayName: "",
-      userId: 0
+      userId: 0,
     });
   }
 
@@ -69,20 +93,56 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ displayName: name });
   }
 
-  setInGame() {
-    this.state.inGame ? this.setState({inGame: false}) : this.setState({inGame: true})
+  setUserList() {
+    socket.emit("getgameinfo", {gameId: this.state.gameId}, (response: any) =>{
+      this.setState({
+        userList: response.userList
+      });
+    })
   }
+
+  setIsHost(id: number) {
+    if(id === this.state.userId){
+      this.setState({isHost: true})
+    }
+  }
+
+  setInGame() {
+    this.state.inGame ? this.setState({ inGame: false }) : this.setState({ inGame: true });
+  }
+
+  setGameStarted(){
+    this.state.gameStarted ? this.setState({gameStarted: false}) : this.setState({gameStarted: true})
+  }
+
+  loadGame() {
+    console.log("gameid - ", this.state.gameId);
+    socket.emit(
+      "getgameinfo",
+      { gameId: this.state.gameId },
+      (response: any) => {
+        console.log(response);
+        if (response.status === 1) {
+          this.setState({
+            userList: [...response.userList],
+            questions: [...response.questions]
+          })
+        }
+      }
+    );
+  }
+
 
   componentDidMount() {
     if (localStorage.getItem("token") !== "null") {
       this.setState({ token: localStorage.getItem("token") || "" });
-      socket.emit("userinfo", {token: localStorage.getItem("token")}, (response: any) =>{
+      socket.emit("userinfo", { token: localStorage.getItem("token") }, (response: any) => {
         console.log(response);
         this.setState({
           userId: response.userId,
-          displayName: response.displayName
-        })
-      })
+          displayName: response.displayName,
+        });
+      });
     }
   }
 
@@ -116,9 +176,37 @@ class App extends React.Component<AppProps, AppState> {
             <Route
               exact
               path="/dashboard"
-              component={() => <Dashboard gameId={this.state.gameId} userId={this.state.userId} setGameId={this.setGameId} setInGame={this.setInGame} />}
+              component={() => (
+                <Dashboard
+                  gameId={this.state.gameId}
+                  userId={this.state.userId}
+                  displayName={this.state.displayName}
+                  setGameId={this.setGameId}
+                  setInGame={this.setInGame}
+                  loadGame={this.loadGame}
+                  setIsHost={this.setIsHost}
+                />
+              )}
             ></Route>
-            <Route exact path="/game" component={() => <Game gameId={this.state.gameId} inGame={this.state.inGame} userId={this.state.userId} displayName={this.state.displayName}/>} />
+            <Route
+              exact
+              path="/game"
+              component={() => (
+                <Game
+                  gameId={this.state.gameId}
+                  inGame={this.state.inGame}
+                  userId={this.state.userId}
+                  displayName={this.state.displayName}
+                  userList={this.state.userList}
+                  isHost={this.state.isHost}
+                  gameStarted={this.state.gameStarted}
+                  questions={this.state.questions}
+                  setUserList={this.setUserList}
+                  loadGame={this.loadGame}
+                  setGameStarted={this.setGameStarted}
+                />
+              )}
+            />
             <Redirect to="/" />
           </Switch>
         </div>

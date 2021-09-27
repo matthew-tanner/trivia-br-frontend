@@ -54,15 +54,6 @@ export class Home extends Component<HomeProps, HomeState> {
 
   render() {
     const buttonStyle = { marginTop: "10px" };
-    // if (this.props.gameId) {
-    //   return (
-    //     <Redirect
-    //       to={{
-    //         pathname: "/game",
-    //       }}
-    //     />
-    //   );
-    // }
     return (
       <Card>
         <Grid container alignItems="center">

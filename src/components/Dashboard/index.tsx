@@ -29,8 +29,11 @@ interface DashboardState {
 interface DashboardProps {
   gameId: string;
   userId: number;
+  displayName: string;
   setGameId(id: string): void;
   setInGame(): void;
+  loadGame(): void;
+  setIsHost(id: number): void;
 }
 export class Dashboard extends Component<DashboardProps, DashboardState> {
   constructor(props: DashboardProps) {
@@ -57,31 +60,54 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     this.setState({ open: false });
     let url = `https://opentdb.com/api.php?amount=${this.state.numQuestions}`;
     if (this.state.categoryId > 0) {
-      url = url + `&category=${this.state.categoryId}`
+      url = url + `&category=${this.state.categoryId}`;
     }
     if (this.state.difficulty !== "any") {
-      url = url + `&difficulty=${this.state.difficulty}`
+      url = url + `&difficulty=${this.state.difficulty}`;
     }
     if (this.state.type !== "any") {
-      url = url + `&type=${this.state.type}`
+      url = url + `&type=${this.state.type}`;
     }
     console.log(url);
     fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      socket.emit("creategame", {userId: this.props.userId, questions: data.results}, (response: any) =>{
-        console.log(`game created [id] ${response.gameId}`);
-        this.setState({gameId: response.gameId});
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(this.props.displayName);
+        socket.emit(
+          "creategame",
+          {
+            userId: this.props.userId,
+            displayName: this.props.displayName,
+            questions: data.results,
+          },
+          (response: any) => {
+            console.log(`game created [id] ${response.gameId}`);
+            this.setState({ gameId: response.gameId });
+            this.props.setGameId(response.gameId);
+            this.props.setIsHost(response.hostId);
+            this.props.setInGame();
+            this.props.loadGame();
+          }
+        );
+      });
+  }
+
+  handleJoin() {
+    socket.emit(
+      "joingame",
+      {
+        gameId: this.state.joinGameId,
+        displayName: this.props.displayName,
+        userId: this.props.userId,
+      },
+      (response: any) => {
+        console.log(response);
+        console.log(`game joined with id - ${response.gameId}`);
         this.props.setGameId(response.gameId);
         this.props.setInGame();
-      })
-    })
-    //   socket.emit("joingame", { gameId: this.state.joinGameId }, (response: any) => {
-    //     console.log(`game joined with id - ${response.gameId}`);
-    //     this.props.setGameId(response.gameId);
-    //   });
-    // }
+        this.props.loadGame();
+      }
+    );
   }
 
   handleClickOpen = () => {
@@ -90,7 +116,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
       categoryId: 0,
       difficulty: "any",
       type: "any",
-      open: true
+      open: true,
     });
   };
 
@@ -142,7 +168,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
             variant="contained"
             color="primary"
             style={buttonStyle}
-            onClick={() => this.handleSubmit()}
+            onClick={() => this.handleJoin()}
           >
             Join Game{" "}
           </Button>
