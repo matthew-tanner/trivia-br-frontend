@@ -15,17 +15,11 @@ socket.on("connect", () => {
   console.log("connected", socket.id);
 });
 
-interface User {
-  userId: number;
-  displayName: string;
-  score: number;
-}
-
 interface Question {
   question: string;
   type: string;
   answer: string;
-  answers: Array<string>
+  answers: Array<string>;
 }
 
 interface AppProps {}
@@ -35,7 +29,7 @@ interface AppState {
   userId: number;
   displayName: string;
   inGame: boolean;
-  userList: User[];
+  //userList: User[];
   isHost: boolean;
   gameStarted: boolean;
   questions: Question[];
@@ -50,10 +44,9 @@ class App extends React.Component<AppProps, AppState> {
       userId: 0,
       displayName: "",
       inGame: false,
-      userList: [],
       isHost: false,
       gameStarted: false,
-      questions: []
+      questions: [],
     };
 
     this.updateToken = this.updateToken.bind(this);
@@ -95,8 +88,8 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   setIsHost(id: number) {
-    if(id === this.state.userId){
-      this.setState({isHost: true})
+    if (id === this.state.userId) {
+      this.setState({ isHost: true });
     }
   }
 
@@ -104,31 +97,31 @@ class App extends React.Component<AppProps, AppState> {
     this.state.inGame ? this.setState({ inGame: false }) : this.setState({ inGame: true });
   }
 
-  setGameStarted(){
-    this.setState({gameStarted: true})
+  setGameStarted() {
+    this.setState({ gameStarted: true });
   }
 
-  setGameStopped(){
-    this.setState({gameStarted: false, gameId: "", isHost: false, inGame: false, userList: [], questions: []})
+  setGameStopped() {
+    this.setState({
+      gameStarted: false,
+      gameId: "",
+      isHost: false,
+      inGame: false,
+      questions: [],
+    });
   }
 
   loadGame() {
     console.log("gameid - ", this.state.gameId);
-    socket.emit(
-      "getgameinfo",
-      { gameId: this.state.gameId },
-      (response: any) => {
-        console.log(response);
-        if (response.status === 1) {
-          this.setState({
-            userList: [...response.userList],
-            questions: [...response.questions]
-          })
-        }
+    socket.emit("getgameinfo", { gameId: this.state.gameId }, (response: any) => {
+      console.log(response);
+      if (response.status === 1) {
+        this.setState({
+          questions: [...response.questions],
+        });
       }
-    );
+    });
   }
-
 
   componentDidMount() {
     if (localStorage.getItem("token") !== "null") {
@@ -194,13 +187,13 @@ class App extends React.Component<AppProps, AppState> {
                   inGame={this.state.inGame}
                   userId={this.state.userId}
                   displayName={this.state.displayName}
-                  userList={this.state.userList}
                   isHost={this.state.isHost}
                   gameStarted={this.state.gameStarted}
                   questions={this.state.questions}
                   loadGame={this.loadGame}
                   setGameStarted={this.setGameStarted}
                   setGameStopped={this.setGameStopped}
+    
                 />
               )}
             />

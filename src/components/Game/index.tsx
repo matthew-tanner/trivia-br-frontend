@@ -14,6 +14,7 @@ import {
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { socket } from "../App";
+import { UserList } from "./userList";
 
 interface User {
   userId: number;
@@ -40,7 +41,6 @@ interface GameProps {
   userId: number;
   displayName: string;
   inGame: boolean;
-  userList: User[];
   loadGame(): void;
   setGameStarted(): void;
   setGameStopped(): void;
@@ -355,26 +355,7 @@ export class Game extends Component<GameProps, GameState> {
             </CardActions>
           </Card>
         </Grid>
-        <Grid item xs={12} md={5}>
-          <Card style={{ height: "325px" }} variant="outlined">
-            <CardContent>
-              <Typography gutterBottom>Player List</Typography>
-            </CardContent>
-            <Divider variant="middle" />
-            <CardContent>
-              <List component="nav">
-                {this.props.userList.map((user: any) => {
-                  return (
-                    <ListItem button key={user.userId}>
-                      <ListItemText>{user.displayName}</ListItemText>
-                      <ListItemText>{this.state.score}</ListItemText>
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
+        <UserList gameId={this.props.gameId}/>
       </Grid>
     );
   }
