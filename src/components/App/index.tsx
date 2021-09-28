@@ -18,6 +18,7 @@ socket.on("connect", () => {
 interface User {
   userId: number;
   displayName: string;
+  score: number;
 }
 
 interface Question {
@@ -61,10 +62,10 @@ class App extends React.Component<AppProps, AppState> {
     this.setUserId = this.setUserId.bind(this);
     this.setDisplayName = this.setDisplayName.bind(this);
     this.setInGame = this.setInGame.bind(this);
-    this.setUserList = this.setUserList.bind(this);
     this.loadGame = this.loadGame.bind(this);
     this.setIsHost = this.setIsHost.bind(this);
     this.setGameStarted = this.setGameStarted.bind(this);
+    this.setGameStopped = this.setGameStopped.bind(this);
   }
   updateToken(newToken: string) {
     localStorage.setItem("token", newToken);
@@ -93,14 +94,6 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ displayName: name });
   }
 
-  setUserList() {
-    socket.emit("getgameinfo", {gameId: this.state.gameId}, (response: any) =>{
-      this.setState({
-        userList: response.userList
-      });
-    })
-  }
-
   setIsHost(id: number) {
     if(id === this.state.userId){
       this.setState({isHost: true})
@@ -112,7 +105,11 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   setGameStarted(){
-    this.state.gameStarted ? this.setState({gameStarted: false}) : this.setState({gameStarted: true})
+    this.setState({gameStarted: true})
+  }
+
+  setGameStopped(){
+    this.setState({gameStarted: false, gameId: "", isHost: false, inGame: false, userList: [], questions: []})
   }
 
   loadGame() {
@@ -201,9 +198,9 @@ class App extends React.Component<AppProps, AppState> {
                   isHost={this.state.isHost}
                   gameStarted={this.state.gameStarted}
                   questions={this.state.questions}
-                  setUserList={this.setUserList}
                   loadGame={this.loadGame}
                   setGameStarted={this.setGameStarted}
+                  setGameStopped={this.setGameStopped}
                 />
               )}
             />
