@@ -67,12 +67,11 @@ export class Game extends Component<GameProps, GameState> {
 
   startGame() {
     console.log("game starting...");
-    //this.props.setGameStarted();
     socket.emit("startgame", { gameId: this.props.gameId }, (response: any) => {});
   }
-  
-  endGame(){
-    socket.emit("endgame", {gameId: this.props.gameId});
+
+  endGame() {
+    socket.emit("endgame", { gameId: this.props.gameId });
   }
 
   getNextQuestion() {
@@ -116,14 +115,13 @@ export class Game extends Component<GameProps, GameState> {
             disableButton: false,
             correct: false,
           };
-        })
+        });
       }
     });
-    
-    
-    socket.on("gamestopped", (data) =>{
+
+    socket.on("gamestopped", (data) => {
       this.props.setGameStopped();
-    })
+    });
   }
 
   render() {
@@ -157,7 +155,11 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
 
-    if (this.state.selectedAnswer && this.props.isHost && this.state.currentQuestionId < (this.props.questions.length - 1)) {
+    if (
+      this.state.selectedAnswer &&
+      this.props.isHost &&
+      this.state.currentQuestionId < this.props.questions.length - 1
+    ) {
       nextButton = (
         <Button
           type="submit"
@@ -172,7 +174,7 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
 
-    if (this.props.isHost && this.props.gameStarted){
+    if (this.props.isHost && this.props.gameStarted) {
       endButton = (
         <Button
           type="submit"
@@ -184,7 +186,7 @@ export class Game extends Component<GameProps, GameState> {
         >
           End Game{" "}
         </Button>
-      )
+      );
     }
 
     if (this.state.correct) {
@@ -223,11 +225,10 @@ export class Game extends Component<GameProps, GameState> {
             onClick={(e) => this.setAnswer(e.currentTarget.value)}
           >
             <div
-            dangerouslySetInnerHTML={{
-              __html: this.props.questions[this.state.currentQuestionId].answer,
-            }}
-          ></div>
-            
+              dangerouslySetInnerHTML={{
+                __html: this.props.questions[this.state.currentQuestionId].answer,
+              }}
+            ></div>
           </Button>
         );
         for (let i of this.props.questions[this.state.currentQuestionId].answers) {
@@ -241,11 +242,12 @@ export class Game extends Component<GameProps, GameState> {
               value={i[0]}
               disabled={this.state.disableButton}
               onClick={(e) => this.setAnswer(e.currentTarget.value)}
-            ><div
-            dangerouslySetInnerHTML={{
-              __html: i[0],
-            }}
-          ></div>
+            >
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: i[0],
+                }}
+              ></div>
             </Button>
           );
           answers.push(
@@ -258,11 +260,12 @@ export class Game extends Component<GameProps, GameState> {
               value={i[1]}
               disabled={this.state.disableButton}
               onClick={(e) => this.setAnswer(e.currentTarget.value)}
-            ><div
-            dangerouslySetInnerHTML={{
-              __html: i[1],
-            }}
-          ></div>
+            >
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: i[1],
+                }}
+              ></div>
             </Button>
           );
           answers.push(
@@ -275,11 +278,12 @@ export class Game extends Component<GameProps, GameState> {
               value={i[2]}
               disabled={this.state.disableButton}
               onClick={(e) => this.setAnswer(e.currentTarget.value)}
-            ><div
-            dangerouslySetInnerHTML={{
-              __html: i[2],
-            }}
-          ></div>
+            >
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: i[2],
+                }}
+              ></div>
             </Button>
           );
         }
@@ -326,13 +330,20 @@ export class Game extends Component<GameProps, GameState> {
                 {startButton}
                 {endButton}
                 {nextButton}
-                
               </Typography>
             </CardContent>
-              {this.props.gameStarted && <><CardContent><Typography gutterBottom>Question # {this.state.currentQuestionId + 1}</Typography>
-              <Typography variant="h5" component="h2">
-                {question}
-              </Typography></CardContent></>}
+            {this.props.gameStarted && (
+              <>
+                <CardContent>
+                  <Typography gutterBottom>
+                    Question # {this.state.currentQuestionId + 1}
+                  </Typography>
+                  <Typography variant="h5" component="h2">
+                    {question}
+                  </Typography>
+                </CardContent>
+              </>
+            )}
             <Divider variant="middle" />
             <CardActions style={{ justifyContent: "center" }}>
               {!this.state.selectedAnswer && (
