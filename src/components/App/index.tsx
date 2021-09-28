@@ -9,7 +9,8 @@ import { Login } from "../Login";
 import { Game } from "../Game";
 import { Dashboard } from "../Dashboard";
 
-export const socket = io(`http://localhost:3000`);
+//export const socket = io(`http://localhost:3000`);
+export const socket = io(`https://trivia-br-api.herokuapp.com/`);
 
 socket.on("connect", () => {
   console.log("connected", socket.id);
