@@ -144,11 +144,7 @@ class App extends React.Component<AppProps, AppState> {
         <div style={{ marginTop: 80 }}>
           <Switch>
             <Route exact path="/">
-              <Home
-                gameId={this.state.gameId}
-                setGameId={this.setGameId}
-                setDisplayName={this.setDisplayName}
-              />
+              <Home />
             </Route>
             <Route exact path="/register" component={Register}></Route>
             <Route
@@ -194,7 +190,6 @@ class App extends React.Component<AppProps, AppState> {
                   loadGame={this.loadGame}
                   setGameStarted={this.setGameStarted}
                   setGameStopped={this.setGameStopped}
-    
                 />
               )}
             />

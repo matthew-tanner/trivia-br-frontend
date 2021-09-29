@@ -7,12 +7,16 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   TextField,
 } from "@material-ui/core/";
+import CloseIcon from '@material-ui/icons/Close';
 import { socket } from "../App";
 import { Redirect } from "react-router";
 
@@ -24,6 +28,7 @@ interface DashboardState {
   categoryId: number;
   difficulty: string;
   type: string;
+  alertOpen: boolean;
 }
 
 interface DashboardProps {
@@ -46,6 +51,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
       categoryId: 0,
       difficulty: "any",
       type: "any",
+      alertOpen: false,
     };
     this.handleClickOpen = this.handleClickOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
@@ -54,6 +60,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     this.handleCategoryChange = this.handleCategoryChange.bind(this);
     this.handleDiffChange = this.handleDiffChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
+    this.handleAlertClose = this.handleAlertClose.bind(this);
   }
 
   handleSubmit() {
@@ -72,23 +79,29 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(this.props.displayName);
-        socket.emit(
-          "creategame",
-          {
-            userId: this.props.userId,
-            displayName: this.props.displayName,
-            questions: data.results,
-          },
-          (response: any) => {
-            console.log(`game created [id] ${response.gameId}`);
-            this.setState({ gameId: response.gameId });
-            this.props.setGameId(response.gameId);
-            this.props.setIsHost(response.hostId);
-            this.props.setInGame();
-            this.props.loadGame();
-          }
-        );
+        console.log(`data results = ${data.results.length}`);
+        if (data.results.length > 0) {
+          console.log(this.props.displayName);
+          socket.emit(
+            "creategame",
+            {
+              userId: this.props.userId,
+              displayName: this.props.displayName,
+              questions: data.results,
+            },
+            (response: any) => {
+              console.log(`game created [id] ${response.gameId}`);
+              this.setState({ gameId: response.gameId });
+              this.props.setGameId(response.gameId);
+              this.props.setIsHost(response.hostId);
+              this.props.setInGame();
+              this.props.loadGame();
+            }
+          );
+        } else {
+          console.log("nothing found");
+          this.setState({ alertOpen: true });
+        }
       });
   }
 
@@ -123,6 +136,9 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
   handleClose() {
     this.setState({ open: false });
   }
+  handleAlertClose() {
+    this.setState({ alertOpen: false });
+  }
 
   handleNumChange(e: any) {
     this.setState({ numQuestions: +e.target.value });
@@ -142,6 +158,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
 
   render() {
     const buttonStyle = { marginTop: "10px" };
+    const selectStyle = { marginTop: "5px", marginBottom: "5px" };
     if (this.props.gameId) {
       return (
         <Redirect
@@ -153,6 +170,20 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     }
     return (
       <Card>
+        <Snackbar
+          open={this.state.alertOpen}
+          autoHideDuration={4000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          onClose={this.handleAlertClose}
+          message="Category Error: No questions available"
+          action={
+            <React.Fragment>
+              <IconButton size="small" aria-label="close" color="inherit" onClick={this.handleAlertClose}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          }
+        />
         <Grid container alignItems="center">
           <Button
             type="submit"
@@ -172,24 +203,25 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
           >
             Join Game{" "}
           </Button>
+          <Divider />
           <TextField
             fullWidth
-            label="Email"
-            placeholder="valid email address required"
+            label="Game Code #"
+            placeholder=""
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               this.setState({ joinGameId: e.currentTarget.value });
             }}
           />
         </Grid>
-        <Dialog open={this.state.open} onClose={this.handleClose}>
+        <Dialog fullWidth open={this.state.open} onClose={this.handleClose}>
           <DialogTitle>Create New Game</DialogTitle>
           <DialogContent>
-            <DialogContentText>All fields are required.</DialogContentText>
             <InputLabel id="num-questions-label">Number of Questions</InputLabel>
             <Select
               labelId="num-questions-label"
               id="num-questions-select"
               name="numQuestions"
+              style={selectStyle}
               value={this.state.numQuestions}
               label="# of Questions"
               onChange={this.handleNumChange}
@@ -202,6 +234,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
             <Select
               labelId="category-label"
               id="category-select"
+              style={selectStyle}
               name="categoryId"
               value={this.state.categoryId}
               label="Cateogory"
@@ -228,6 +261,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
               labelId="difficulty-label"
               id="difficulty-select"
               name="difficulty"
+              style={selectStyle}
               value={this.state.difficulty}
               label="Difficulty"
               onChange={this.handleDiffChange}

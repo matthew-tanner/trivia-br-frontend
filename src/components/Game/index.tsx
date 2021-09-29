@@ -6,21 +6,12 @@ import {
   CardContent,
   Divider,
   Grid,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
 } from "@material-ui/core/";
 import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { socket } from "../App";
 import { UserList } from "./userList";
-
-interface User {
-  userId: number;
-  displayName: string;
-  score: number;
-}
 interface GameState {
   currentQuestionId: number;
   selectedAnswer: string | number;
