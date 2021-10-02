@@ -1,6 +1,7 @@
 import {
   Card,
   CardContent,
+  Chip,
   Divider,
   Grid,
   List,
@@ -10,6 +11,7 @@ import {
 } from "@material-ui/core/";
 import React, { Component } from "react";
 import { socket } from "../App";
+import copy from "copy-to-clipboard";
 
 interface User {
   userId: number;
@@ -22,6 +24,8 @@ interface UserListState {
 }
 interface UserListProps {
   gameId: string;
+  userId: number;
+  setLeader(n: string): void;
 }
 export class UserList extends Component<UserListProps, UserListState> {
   constructor(props: UserListProps) {
@@ -31,11 +35,11 @@ export class UserList extends Component<UserListProps, UserListState> {
     };
 
     this.getUserList = this.getUserList.bind(this);
+    this.copyId = this.copyId.bind(this);
   }
 
   getUserList() {
     socket.emit("getgameinfo", { gameId: this.props.gameId }, (response: any) => {
-      console.log(response);
       if (response.status === 1) {
         this.setState({
           userList: [...response.userList],
@@ -44,31 +48,44 @@ export class UserList extends Component<UserListProps, UserListState> {
     });
   }
 
+  copyId(){
+    copy(this.props.gameId);
+  }
+
   componentDidMount() {
-    if(this.state.userList.length === 0){
+    if (this.state.userList.length === 0) {
       this.getUserList();
     }
     socket.on("updateusers", (data) => {
-      console.log("getting update user data", data.userList);
+      const list = data.userList.sort((a: any, b: any) => (a.score > b.score ? -1 : 1));
       this.setState({
-        userList: data.userList,
+        userList: list,
       });
+      this.props.setLeader(list[0].displayName)
     });
   }
 
   render() {
+    const listStyleUser = { background: "lightgreen" };
+    const listStyle = { background: "white" };
     return (
       <Grid item xs={12} md={5}>
         <Card style={{ height: "325px" }} variant="outlined">
           <CardContent>
-            <Typography gutterBottom>Player List</Typography>
+            <Typography gutterBottom>
+              <Chip
+                label={`Player List for Game ID # ${this.props.gameId}`}
+                color="primary"
+                onClick={this.copyId}
+              />
+            </Typography>
           </CardContent>
           <Divider variant="middle" />
           <CardContent>
             <List component="nav">
               {this.state.userList.map((user: any) => {
                 return (
-                  <ListItem button key={user.userId}>
+                  <ListItem style={user.userId === this.props.userId ? listStyleUser : listStyle} button key={user.userId}>
                     <ListItemText>{user.displayName}</ListItemText>
                     <ListItemText>{user.score}</ListItemText>
                   </ListItem>

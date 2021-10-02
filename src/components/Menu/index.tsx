@@ -7,7 +7,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface MenuAppBarProps {
   token: string;
+  isAdmin: boolean;
   clearToken: () => void;
 }
 
@@ -96,6 +97,11 @@ export default function MenuAppBar(props: MenuAppBarProps) {
                 open={open}
                 onClose={handleClose}
               >
+                {props.isAdmin &&<MenuItem onClick={handleClose}>
+                  <Link style={{ textDecoration: "none", color: "black" }} to="/admin">
+                    Admin
+                  </Link>
+                </MenuItem>}
                 <MenuItem onClick={handleClose}>
                   <Link style={{ textDecoration: "none", color: "black" }} to="/dashboard">
                     Dashboard

@@ -14,6 +14,7 @@ interface LoginProps {
   updateToken: (newToken: string) => void;
   setUserId: (id: number) => void;
   setDisplayName: (name: string) => void;
+  setIsAdmin: () => void;
 }
 
 export class Login extends Component<LoginProps, LoginState> {
@@ -27,11 +28,13 @@ export class Login extends Component<LoginProps, LoginState> {
     const { email, password } = this.state;
 
     socket.emit("login", { email: email, password: password }, (response: any) => {
-      console.log(response.sessionToken);
       this.setState({ redirect: response.status });
       this.props.updateToken(response.sessionToken);
       this.props.setUserId(response.userId);
       this.props.setDisplayName(response.displayName);
+      if(response.isAdmin){
+        this.props.setIsAdmin();
+      }
     });
   }
 
@@ -39,7 +42,6 @@ export class Login extends Component<LoginProps, LoginState> {
     const formStyle = { padding: "30px 20px", width: 300, margin: "20px auto" };
     const buttonStyle = { marginTop: "10px" };
     if (this.state.redirect === 1) {
-      console.log("successful login");
       return <Redirect to="/dashboard" />;
     }
     return (

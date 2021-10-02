@@ -4,13 +4,16 @@ import Container from "@material-ui/core/Container";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { Home } from "../Home";
 import MenuAppBar from "../Menu";
+import { useJwt } from "react-jwt";
 import { Register } from "../Register";
 import { Login } from "../Login";
 import { Game } from "../Game";
 import { Dashboard } from "../Dashboard";
+import { Admin } from "../Admin";
+import '@fontsource/roboto';
 
-//export const socket = io(`http://localhost:3000`);
-export const socket = io(`https://trivia-br-api.herokuapp.com/`);
+export const socket = io(`http://localhost:3000`);
+//export const socket = io(`https://trivia-br-api.herokuapp.com/`);
 
 socket.on("connect", () => {
   console.log("connected", socket.id);
@@ -23,7 +26,7 @@ interface Question {
   answers: Array<string>;
 }
 
-interface AppProps {}
+interface AppProps { }
 interface AppState {
   token: string;
   gameId: string;
@@ -34,6 +37,7 @@ interface AppState {
   isHost: boolean;
   gameStarted: boolean;
   questions: Question[];
+  isAdmin: boolean;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -48,6 +52,7 @@ class App extends React.Component<AppProps, AppState> {
       isHost: false,
       gameStarted: false,
       questions: [],
+      isAdmin: false,
     };
 
     this.updateToken = this.updateToken.bind(this);
@@ -58,8 +63,10 @@ class App extends React.Component<AppProps, AppState> {
     this.setInGame = this.setInGame.bind(this);
     this.loadGame = this.loadGame.bind(this);
     this.setIsHost = this.setIsHost.bind(this);
+    this.setUserId = this.setUserId.bind(this);
     this.setGameStarted = this.setGameStarted.bind(this);
     this.setGameStopped = this.setGameStopped.bind(this);
+    this.setIsAdmin = this.setIsAdmin.bind(this);
   }
   updateToken(newToken: string) {
     localStorage.setItem("token", newToken);
@@ -67,12 +74,12 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   clearToken() {
-    console.log("test");
     localStorage.removeItem("token");
     this.setState({
       token: "",
       displayName: "",
       userId: 0,
+      isAdmin: false,
     });
   }
 
@@ -94,6 +101,12 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  setIsAdmin() {
+    this.setState({
+      isAdmin: true
+    })
+  }
+
   setInGame() {
     this.state.inGame ? this.setState({ inGame: false }) : this.setState({ inGame: true });
   }
@@ -113,9 +126,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   loadGame() {
-    console.log("gameid - ", this.state.gameId);
     socket.emit("getgameinfo", { gameId: this.state.gameId }, (response: any) => {
-      console.log(response);
       if (response.status === 1) {
         this.setState({
           questions: [...response.questions],
@@ -125,14 +136,18 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidMount() {
-    if (localStorage.getItem("token") !== "null") {
+    const userToken = localStorage.getItem("token") || "";
+    if (userToken.length > 0) {
       this.setState({ token: localStorage.getItem("token") || "" });
       socket.emit("userinfo", { token: localStorage.getItem("token") }, (response: any) => {
-        console.log(response);
-        this.setState({
-          userId: response.userId,
-          displayName: response.displayName,
-        });
+        if (response.status === 0) {
+          this.clearToken();
+        } else {
+          this.setState({
+            userId: response.userId,
+            displayName: response.displayName,
+          });
+        }
       });
     }
   }
@@ -140,11 +155,20 @@ class App extends React.Component<AppProps, AppState> {
   render() {
     return (
       <Container>
-        <MenuAppBar token={this.state.token} clearToken={this.clearToken} />
+        <MenuAppBar token={this.state.token} clearToken={this.clearToken} isAdmin={this.state.isAdmin} />
         <div style={{ marginTop: 80 }}>
           <Switch>
             <Route exact path="/">
-              <Home />
+              <Home
+                gameId={this.state.gameId}
+                userId={this.state.userId}
+                displayName={this.state.displayName}
+                setGameId={this.setGameId}
+                setInGame={this.setInGame}
+                loadGame={this.loadGame}
+                setIsHost={this.setIsHost}
+                setUserId={this.setUserId}
+                setDisplayName={this.setDisplayName} />
             </Route>
             <Route exact path="/register" component={Register}></Route>
             <Route
@@ -156,6 +180,7 @@ class App extends React.Component<AppProps, AppState> {
                   updateToken={this.updateToken}
                   setUserId={this.setUserId}
                   setDisplayName={this.setDisplayName}
+                  setIsAdmin={this.setIsAdmin}
                 />
               )}
             ></Route>
@@ -172,6 +197,18 @@ class App extends React.Component<AppProps, AppState> {
                   setInGame={this.setInGame}
                   loadGame={this.loadGame}
                   setIsHost={this.setIsHost}
+                />
+              )}
+            ></Route>
+            <Route
+              exact
+              path="/admin"
+              component={() => (
+                <Admin
+                  gameId={this.state.gameId}
+                  userId={this.state.userId}
+                  displayName={this.state.displayName}
+                  isAdmin={this.state.isAdmin}
                 />
               )}
             ></Route>

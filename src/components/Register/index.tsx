@@ -23,7 +23,6 @@ export class Register extends Component<{}, RegisterState> {
       "register",
       { email: email, password: password, displayName: displayName },
       (response: any) => {
-        console.log(response);
       }
     );
   }

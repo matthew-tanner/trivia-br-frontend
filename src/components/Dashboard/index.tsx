@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {
   Button,
   Card,
+  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,9 +15,14 @@ import {
   MenuItem,
   Select,
   Snackbar,
+  Typography,
   TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@material-ui/core/";
 import CloseIcon from '@material-ui/icons/Close';
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { socket } from "../App";
 import { Redirect } from "react-router";
 
@@ -75,13 +81,10 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     if (this.state.type !== "any") {
       url = url + `&type=${this.state.type}`;
     }
-    console.log(url);
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`data results = ${data.results.length}`);
         if (data.results.length > 0) {
-          console.log(this.props.displayName);
           socket.emit(
             "creategame",
             {
@@ -99,7 +102,6 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
             }
           );
         } else {
-          console.log("nothing found");
           this.setState({ alertOpen: true });
         }
       });
@@ -114,7 +116,6 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
         userId: this.props.userId,
       },
       (response: any) => {
-        console.log(response);
         console.log(`game joined with id - ${response.gameId}`);
         this.props.setGameId(response.gameId);
         this.props.setInGame();
@@ -157,8 +158,9 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
   }
 
   render() {
-    const buttonStyle = { marginTop: "10px" };
+    const buttonStyle = { margin: "10px" ,width: "130px"};
     const selectStyle = { marginTop: "5px", marginBottom: "5px" };
+    const cardStyle = { marginTop: "10px"}
     if (this.props.gameId) {
       return (
         <Redirect
@@ -169,7 +171,8 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
       );
     }
     return (
-      <Card>
+      <>
+      <Card style={cardStyle}>
         <Snackbar
           open={this.state.alertOpen}
           autoHideDuration={4000}
@@ -185,33 +188,38 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
           }
         />
         <Grid container alignItems="center">
+          <Grid item>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={buttonStyle}
+              onClick={() => this.handleClickOpen()}
+            >
+              Create Game{" "}
+            </Button>
+          </Grid>
+          <Divider />
+          <Grid item>
           <Button
             type="submit"
             variant="contained"
             color="primary"
             style={buttonStyle}
-            onClick={() => this.handleClickOpen()}
-          >
-            Create Game{" "}
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            style={buttonStyle}
+            disabled={this.state.joinGameId.length === 0}
             onClick={() => this.handleJoin()}
           >
             Join Game{" "}
           </Button>
-          <Divider />
+
           <TextField
-            fullWidth
             label="Game Code #"
             placeholder=""
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               this.setState({ joinGameId: e.currentTarget.value });
             }}
           />
+          </Grid>
         </Grid>
         <Dialog fullWidth open={this.state.open} onClose={this.handleClose}>
           <DialogTitle>Create New Game</DialogTitle>
@@ -291,6 +299,40 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
           </DialogActions>
         </Dialog>
       </Card>
+      <Divider/>
+      <Card style={cardStyle}>
+        <CardContent>
+          <Typography variant="h5" align="center" gutterBottom>Hosted Game History</Typography>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            id="panel1a-header">
+              Firt Game
+            </AccordionSummary>
+            <AccordionDetails>
+              Details go here
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            id="panel1a-header">
+              Second Game
+            </AccordionSummary>
+            <AccordionDetails>
+              Details go here
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}
+            id="panel1a-header">
+              Third Game
+            </AccordionSummary>
+            <AccordionDetails>
+              Details go here
+            </AccordionDetails>
+          </Accordion>
+        </CardContent>
+      </Card>
+      </>
     );
   }
 }

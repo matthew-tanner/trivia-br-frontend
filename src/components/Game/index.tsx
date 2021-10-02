@@ -4,6 +4,11 @@ import {
   Card,
   CardActions,
   CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   Typography,
@@ -12,6 +17,8 @@ import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { socket } from "../App";
 import { UserList } from "./userList";
+import { Counter } from "./countDown";
+
 interface GameState {
   currentQuestionId: number;
   selectedAnswer: string | number;
@@ -19,6 +26,9 @@ interface GameState {
   disableNext: boolean;
   score: number;
   correct: boolean;
+  counter: number;
+  open: boolean;
+  leader: string;
 }
 
 interface Question {
@@ -49,16 +59,24 @@ export class Game extends Component<GameProps, GameState> {
       disableNext: false,
       score: 0,
       correct: false,
+      counter: 15,
+      open: false,
+      leader: "",
     };
 
     this.startGame = this.startGame.bind(this);
     this.getNextQuestion = this.getNextQuestion.bind(this);
     this.endGame = this.endGame.bind(this);
+    this.setDisableButton = this.setDisableButton.bind(this);
+    this.setCounter = this.setCounter.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.setLeader = this.setLeader.bind(this);
   }
 
   startGame() {
     console.log("game starting...");
-    socket.emit("startgame", { gameId: this.props.gameId }, (response: any) => {});
+    socket.emit("startgame", { gameId: this.props.gameId }, (response: any) => { });
+    socket.emit("questioncountdown", { gameId: this.props.gameId })
   }
 
   endGame() {
@@ -68,6 +86,27 @@ export class Game extends Component<GameProps, GameState> {
   getNextQuestion() {
     console.log("getting next question...");
     socket.emit("nextquestion", { gameId: this.props.gameId });
+    socket.emit("questioncountdown", { gameId: this.props.gameId })
+  }
+
+  setDisableButton() {
+    this.setState({ disableButton: true })
+  }
+
+  setCounter(i: number) {
+    if(this.state.counter === 0 && this.state.currentQuestionId === this.props.questions.length -1){
+      this.setState({counter: i, open: true})
+    }
+    this.setState({ counter: i })
+  }
+
+  handleClose() {
+    this.endGame();
+    this.setState({ open: false });
+  }
+
+  setLeader(name: string){
+    this.setState({leader: name})
   }
 
   setAnswer(answer: string | number) {
@@ -77,7 +116,7 @@ export class Game extends Component<GameProps, GameState> {
           selectedAnswer: answer,
           disableButton: true,
           correct: true,
-          score: prevState.score + 1,
+          score: prevState.score + Math.round((this.state.counter * 100) / 15),
         };
       });
     } else {
@@ -132,6 +171,8 @@ export class Game extends Component<GameProps, GameState> {
     let question;
     let answers = [];
     let waitForNext;
+    let winnerDialog;
+
     if (this.props.isHost && !this.props.gameStarted) {
       startButton = (
         <Button
@@ -147,7 +188,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     if (
-      this.state.selectedAnswer &&
+      (this.state.counter === 0) &&
       this.props.isHost &&
       this.state.currentQuestionId < this.props.questions.length - 1
     ) {
@@ -180,10 +221,26 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
 
+    if(this.state.counter === 0 && this.state.currentQuestionId === this.props.questions.length -1 && this.state.leader.length > 0){
+      winnerDialog = (
+        <Dialog style={{background: "lightblue"}} fullWidth open={this.state.open} onClose={this.handleClose}>
+          <DialogTitle>Game Results</DialogTitle>
+          <DialogContent>
+            <Typography>!!!WINNER!!!</Typography>
+            <Divider/>
+            <Typography>{this.state.leader}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose}>Finish</Button>
+          </DialogActions>
+        </Dialog>
+      )
+    }
+
     if (this.state.correct) {
-      waitForNext = <div>CORRECT! you answered with " {this.state.selectedAnswer} "</div>;
+      waitForNext = <Typography variant="h5" color="primary">CORRECT!"</Typography>;
     } else {
-      waitForNext = <div>INCORRECT! Waiting for next question...</div>;
+      waitForNext = <Typography variant="h5" color="error">INCORRECT! Waiting for next question...</Typography>;
     }
 
     if (this.props.gameStarted) {
@@ -314,25 +371,32 @@ export class Game extends Component<GameProps, GameState> {
 
     return (
       <Grid container spacing={3}>
+        {winnerDialog}
         <Grid item xs={12} md={7}>
           <Card style={{ minHeight: "325px" }} variant="outlined">
             <CardContent>
-              <Typography gutterBottom>
+              <Typography>
                 {startButton}
                 {endButton}
                 {nextButton}
               </Typography>
             </CardContent>
+            {this.props.gameStarted && (<CardContent style={{ alignContent: "center" }}><Counter setDisableButton={this.setDisableButton} setCounter={this.setCounter} counter={this.state.counter} /></CardContent>)}
             {this.props.gameStarted && (
               <>
                 <CardContent>
-                  <Typography gutterBottom>
+                  <Typography>
                     Question # {this.state.currentQuestionId + 1}
                   </Typography>
                   <Typography variant="h5" component="h2">
                     {question}
                   </Typography>
                 </CardContent>
+              </>
+            )}
+            {!this.props.gameStarted && !this.props.isHost &&(
+              <>
+                <Typography variant="h4" align="center">Game starting soon...</Typography>
               </>
             )}
             <Divider variant="middle" />
@@ -346,7 +410,7 @@ export class Game extends Component<GameProps, GameState> {
             </CardActions>
           </Card>
         </Grid>
-        <UserList gameId={this.props.gameId}/>
+        <UserList gameId={this.props.gameId} userId={this.props.userId} setLeader={this.setLeader}/>
       </Grid>
     );
   }
