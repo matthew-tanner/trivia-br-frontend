@@ -15,7 +15,7 @@ import '@fontsource/roboto';
 
 dotenv.config();
 
-export const socket = io(process.env.REACT_APP_API_HOST ?? "", {transports: ["websocket"]})
+export const socket = io(process.env.REACT_APP_API_HOST ?? "")
 
 socket.on("connect", () => {
   console.log("connected", socket.id);
