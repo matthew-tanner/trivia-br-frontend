@@ -1,4 +1,5 @@
 import React from "react";
+import * as dotenv from "dotenv";
 import { io } from "socket.io-client";
 import Container from "@material-ui/core/Container";
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -12,8 +13,9 @@ import { Dashboard } from "../Dashboard";
 import { Admin } from "../Admin";
 import '@fontsource/roboto';
 
-export const socket = io(`http://localhost:3000`);
-//export const socket = io(`https://trivia-br-api.herokuapp.com/`);
+dotenv.config();
+
+export const socket = io(process.env.REACT_APP_API_HOST ?? "")
 
 socket.on("connect", () => {
   console.log("connected", socket.id);
