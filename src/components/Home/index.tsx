@@ -95,12 +95,15 @@ export class Home extends Component<HomeProps, HomeState> {
       "joingame",
       {
         gameId: this.state.joinGameId,
-        displayName: this.props.displayName,
-        userId: this.props.userId,
+        userId: Math.floor(Math.random()*90000),
+        displayName: `guest${(Math.random() +1).toString(36).substring(5)}`,
       },
       (response: any) => {
         console.log(`game joined with id - ${response.gameId}`);
         this.props.setGameId(response.gameId);
+        this.props.setUserId(response.userId);
+        this.props.setIsHost(response.hostId);
+        this.props.setDisplayName(response.displayName);
         this.props.setInGame();
         this.props.loadGame();
       }
