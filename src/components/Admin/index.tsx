@@ -1,23 +1,4 @@
 import React, { Component } from "react";
-import {
-  Button,
-  Card,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
-  Grid,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  Snackbar,
-  TextField,
-} from "@material-ui/core/";
-import CloseIcon from '@material-ui/icons/Close';
-import { socket } from "../App";
 import { Redirect } from "react-router";
 
 interface AdminState {

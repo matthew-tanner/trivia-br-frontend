@@ -7,7 +7,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Typography,
 } from "@material-ui/core/";
 import React, { Component } from "react";
 import { socket } from "../App";
@@ -72,13 +71,11 @@ export class UserList extends Component<UserListProps, UserListState> {
       <Grid item xs={12} md={5}>
         <Card style={{ height: "325px" }} variant="outlined">
           <CardContent>
-            <Typography gutterBottom>
               <Chip
                 label={`Player List for Game ID # ${this.props.gameId}`}
                 color="primary"
                 onClick={this.copyId}
               />
-            </Typography>
           </CardContent>
           <Divider variant="middle" />
           <CardContent>

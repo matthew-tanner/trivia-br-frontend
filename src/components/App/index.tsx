@@ -5,7 +5,6 @@ import Container from "@material-ui/core/Container";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { Home } from "../Home";
 import MenuAppBar from "../Menu";
-import { useJwt } from "react-jwt";
 import { Register } from "../Register";
 import { Login } from "../Login";
 import { Game } from "../Game";

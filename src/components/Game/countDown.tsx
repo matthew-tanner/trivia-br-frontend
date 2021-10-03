@@ -1,17 +1,8 @@
 import {
   Box,
-  Card,
-  CardContent,
   CircularProgress,
-  Divider,
-  Grid,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
 } from "@material-ui/core/";
 import React, { Component } from "react";
-import { socket } from "../App";
 
 
 interface CounterState {
@@ -27,19 +18,21 @@ export class Counter extends Component<CounterProps, CounterState> {
     super(props);
     this.state = {
     };
-
   }
 
+  countDown(){
+    const interval = setInterval(()=> {
+      const time = this.props.counter;
+      if (time > 0){
+        this.props.setCounter(time - 1)
+      }else{
+        clearInterval(interval);
+      }
+    }, 1000)
+  }
 
   componentDidMount() {
-    socket.on("counter", (data) => {
-      if (data === 0) {
-        this.props.setDisableButton();
-        this.props.setCounter(data);
-      } else {
-        this.props.setCounter(data);
-      }
-    })
+    this.countDown();
   }
 
   render() {

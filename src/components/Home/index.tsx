@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardContent, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from "@material-ui/core/";
+import { Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, InputLabel, MenuItem, Select, Snackbar, TextField } from "@material-ui/core/";
 import { socket } from "../App";
 import CloseIcon from '@material-ui/icons/Close';
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore"
 import { Redirect } from "react-router";
 
 interface HomeState {
@@ -68,8 +67,8 @@ export class Home extends Component<HomeProps, HomeState> {
           socket.emit(
             "creategame",
             {
-              userId: Math.floor(Math.random()*90000),
-              displayName: `guest${(Math.random() +1).toString(36).substring(5)}`,
+              userId: Math.floor(Math.random() * 90000),
+              displayName: `guest${(Math.random() + 1).toString(36).substring(5)}`,
               questions: data.results,
             },
             (response: any) => {
@@ -95,8 +94,8 @@ export class Home extends Component<HomeProps, HomeState> {
       "joingame",
       {
         gameId: this.state.joinGameId,
-        userId: Math.floor(Math.random()*90000),
-        displayName: `guest${(Math.random() +1).toString(36).substring(5)}`,
+        userId: Math.floor(Math.random() * 90000),
+        displayName: `guest${(Math.random() + 1).toString(36).substring(5)}`,
       },
       (response: any) => {
         console.log(`game joined with id - ${response.gameId}`);
@@ -165,8 +164,8 @@ export class Home extends Component<HomeProps, HomeState> {
         <Card style={cardStyle}>
           <CardHeader
             title="Public Games"
-            style={{textAlign: "center"}}
-            />
+            style={{ textAlign: "center" }}
+          />
           <Snackbar
             open={this.state.alertOpen}
             autoHideDuration={4000}

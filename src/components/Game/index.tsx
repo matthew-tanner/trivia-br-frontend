@@ -1,10 +1,11 @@
 import {
+  Box,
   Button,
   ButtonGroup,
   Card,
   CardActions,
   CardContent,
-  Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -17,7 +18,6 @@ import React, { Component } from "react";
 import { Redirect } from "react-router";
 import { socket } from "../App";
 import { UserList } from "./userList";
-import { Counter } from "./countDown";
 
 interface GameState {
   currentQuestionId: number;
@@ -29,6 +29,7 @@ interface GameState {
   counter: number;
   open: boolean;
   leader: string;
+  sentAnswer: boolean;
 }
 
 interface Question {
@@ -50,6 +51,7 @@ interface GameProps {
   questions: Question[];
 }
 export class Game extends Component<GameProps, GameState> {
+  private _Counter: any;
   constructor(props: GameProps) {
     super(props);
     this.state = {
@@ -62,6 +64,7 @@ export class Game extends Component<GameProps, GameState> {
       counter: 15,
       open: false,
       leader: "",
+      sentAnswer: false,
     };
 
     this.startGame = this.startGame.bind(this);
@@ -86,7 +89,8 @@ export class Game extends Component<GameProps, GameState> {
   getNextQuestion() {
     console.log("getting next question...");
     socket.emit("nextquestion", { gameId: this.props.gameId });
-    socket.emit("questioncountdown", { gameId: this.props.gameId })
+    this.setState({sentAnswer: false})
+    //socket.emit("questioncountdown", { gameId: this.props.gameId })
   }
 
   setDisableButton() {
@@ -94,8 +98,8 @@ export class Game extends Component<GameProps, GameState> {
   }
 
   setCounter(i: number) {
-    if(this.state.counter === 0 && this.state.currentQuestionId === this.props.questions.length -1){
-      this.setState({counter: i, open: true})
+    if (this.state.counter === 0 && this.state.currentQuestionId === this.props.questions.length - 1) {
+      this.setState({ counter: i, open: true })
     }
     this.setState({ counter: i })
   }
@@ -105,8 +109,8 @@ export class Game extends Component<GameProps, GameState> {
     this.setState({ open: false });
   }
 
-  setLeader(name: string){
-    this.setState({leader: name})
+  setLeader(name: string) {
+    this.setState({ leader: name })
   }
 
   setAnswer(answer: string | number) {
@@ -114,17 +118,47 @@ export class Game extends Component<GameProps, GameState> {
       this.setState((prevState) => {
         return {
           selectedAnswer: answer,
-          disableButton: true,
           correct: true,
           score: prevState.score + Math.round((this.state.counter * 100) / 15),
         };
       });
     } else {
-      this.setState({ selectedAnswer: answer, disableButton: true });
+      this.setState({ selectedAnswer: answer});
+    }
+  }
+
+  countDown() {
+    this._Counter = setInterval(() => {
+      const time = this.state.counter;
+      if (time > 0) {
+        this.setState((prevState)=>{
+          return{counter: prevState.counter -1}
+        })
+      } else {
+        if(this.state.currentQuestionId === this.props.questions.length -1){
+          this.setState({open: true, disableButton: true})
+        }else{
+          this.setState({disableButton: true})
+        }
+        clearInterval(this._Counter);
+      }
+    }, 1000)
+  }
+
+  componentDidUpdate(){
+    if (this.state.correct && !this.state.sentAnswer){
+      this.setState({sentAnswer: true})
+      socket.emit("correctanswer", {
+        gameId: this.props.gameId,
+        userId: this.props.userId,
+        score: this.state.score,
+      });
     }
   }
 
   componentDidMount() {
+    this.countDown();
+
     socket.on("joinedgame", (data) => {
       console.log(`player joined - ${data.displayName}`);
       this.props.loadGame();
@@ -144,14 +178,21 @@ export class Game extends Component<GameProps, GameState> {
             currentQuestionId: prevState.currentQuestionId + 1,
             disableButton: false,
             correct: false,
+            counter: 15,
+            sentAnswer: false
           };
         });
+        this.countDown();
       }
     });
 
     socket.on("gamestopped", (data) => {
       this.props.setGameStopped();
     });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._Counter);
   }
 
   render() {
@@ -165,6 +206,7 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
     const buttonStyle = { margin: "1px", minWidth: "150px" };
+    const progress = (this.state.counter * 100) / 15
     let startButton;
     let nextButton;
     let endButton;
@@ -188,7 +230,7 @@ export class Game extends Component<GameProps, GameState> {
     }
 
     if (
-      (this.state.counter === 0) &&
+      this.state.disableButton &&
       this.props.isHost &&
       this.state.currentQuestionId < this.props.questions.length - 1
     ) {
@@ -221,13 +263,13 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
 
-    if(this.state.counter === 0 && this.state.currentQuestionId === this.props.questions.length -1 && this.state.leader.length > 0){
+    if (this.state.currentQuestionId === this.props.questions.length - 1) {
       winnerDialog = (
-        <Dialog style={{background: "lightblue"}} fullWidth open={this.state.open} onClose={this.handleClose}>
+        <Dialog style={{ background: "lightblue" }} fullWidth open={this.state.open} onClose={this.handleClose}>
           <DialogTitle>Game Results</DialogTitle>
           <DialogContent>
             <Typography>!!!WINNER!!!</Typography>
-            <Divider/>
+            <Divider />
             <Typography>{this.state.leader}</Typography>
           </DialogContent>
           <DialogActions>
@@ -253,13 +295,7 @@ export class Game extends Component<GameProps, GameState> {
           ></div>
         </>
       );
-      if (this.state.correct) {
-        socket.emit("correctanswer", {
-          gameId: this.props.gameId,
-          userId: this.props.userId,
-          score: this.state.score,
-        });
-      }
+
       if (this.props.questions[this.state.currentQuestionId].type === "multiple") {
         answers.push(
           <Button
@@ -381,7 +417,19 @@ export class Game extends Component<GameProps, GameState> {
                 {nextButton}
               </Typography>
             </CardContent>
-            {this.props.gameStarted && (<CardContent style={{ alignContent: "center" }}><Counter setDisableButton={this.setDisableButton} setCounter={this.setCounter} counter={this.state.counter} /></CardContent>)}
+            {this.props.gameStarted && (<Box position="relative" display="inline-flex">
+              <CircularProgress variant="determinate" value={progress} />
+              <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >{this.state.counter}</Box>
+            </Box>)}
             {this.props.gameStarted && (
               <>
                 <CardContent>
@@ -394,7 +442,7 @@ export class Game extends Component<GameProps, GameState> {
                 </CardContent>
               </>
             )}
-            {!this.props.gameStarted && !this.props.isHost &&(
+            {!this.props.gameStarted && !this.props.isHost && (
               <>
                 <Typography variant="h4" align="center">Game starting soon...</Typography>
               </>
@@ -410,7 +458,7 @@ export class Game extends Component<GameProps, GameState> {
             </CardActions>
           </Card>
         </Grid>
-        <UserList gameId={this.props.gameId} userId={this.props.userId} setLeader={this.setLeader}/>
+        <UserList gameId={this.props.gameId} userId={this.props.userId} setLeader={this.setLeader} />
       </Grid>
     );
   }
