@@ -248,6 +248,7 @@ export class Game extends Component<GameProps, GameState> {
 
     if (
       this.state.disableButton &&
+      this.props.gameStarted &&
       this.props.isHost &&
       this.state.currentQuestionId < this.props.questions.length - 1
     ) {
