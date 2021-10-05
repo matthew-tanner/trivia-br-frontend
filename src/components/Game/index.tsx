@@ -30,6 +30,7 @@ interface GameState {
   open: boolean;
   leader: string;
   sentAnswer: boolean;
+  answers: Array<string>
 }
 
 interface Question {
@@ -65,6 +66,7 @@ export class Game extends Component<GameProps, GameState> {
       open: false,
       leader: "",
       sentAnswer: false,
+      answers: []
     };
 
     this.startGame = this.startGame.bind(this);
@@ -74,6 +76,7 @@ export class Game extends Component<GameProps, GameState> {
     this.setCounter = this.setCounter.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.setLeader = this.setLeader.bind(this);
+    this.sortAnswers = this.sortAnswers.bind(this);
   }
 
   startGame() {
@@ -143,6 +146,19 @@ export class Game extends Component<GameProps, GameState> {
         clearInterval(this._Counter);
       }
     }, 1000)
+  }
+
+  sortAnswers(){
+    const shuffled = [];
+    console.log("answer - ", this.props.questions[this.state.currentQuestionId].answer)
+    // shuffled.push(this.props.questions[this.state.currentQuestionId].answer);
+    // for (let i of this.props.questions[this.state.currentQuestionId].answers){
+    //   shuffled.push(i[0])
+    //   shuffled.push(i[1])
+    //   shuffled.push(i[2])
+    // }
+    // shuffled.sort(()=> Math.random() - 0.5);
+    // this.setState({answers: shuffled})
   }
 
   componentDidUpdate(){
@@ -379,9 +395,9 @@ export class Game extends Component<GameProps, GameState> {
             color="primary"
             style={buttonStyle}
             disabled={this.state.disableButton}
-            value={this.props.questions[this.state.currentQuestionId].answer}
-            key={this.props.questions[this.state.currentQuestionId].answer}
-            onClick={(e) => this.setAnswer(e.currentTarget.value)}
+            value="True"
+            key="true"
+            onClick={(e) => this.setAnswer("True")}
           >
             {this.props.questions[this.state.currentQuestionId].answer}
           </Button>
@@ -393,10 +409,10 @@ export class Game extends Component<GameProps, GameState> {
               variant="contained"
               color="primary"
               style={buttonStyle}
-              key={i[0]}
-              value={i[0]}
+              key="False"
+              value="False"
               disabled={this.state.disableButton}
-              onClick={(e) => this.setAnswer(e.currentTarget.value)}
+              onClick={(e) => this.setAnswer("False")}
             >
               {i[0]}
             </Button>
