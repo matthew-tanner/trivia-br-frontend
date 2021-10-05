@@ -156,7 +156,6 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
-    
     return (
       <Container style={{background: "#595260", height: "100vh", margin: "auto"}}>
         <MenuAppBar token={this.state.token} clearToken={this.clearToken} isAdmin={this.state.isAdmin} />
@@ -202,6 +201,7 @@ class App extends React.Component<AppProps, AppState> {
                   setInGame={this.setInGame}
                   loadGame={this.loadGame}
                   setIsHost={this.setIsHost}
+                  clearToken={this.clearToken}
                 />
               )}
             ></Route>

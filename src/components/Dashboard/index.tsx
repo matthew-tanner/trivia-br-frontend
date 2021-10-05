@@ -60,6 +60,7 @@ interface DashboardProps {
   setInGame(): void;
   loadGame(): void;
   setIsHost(id: number): void;
+  clearToken(): void;
 }
 export class Dashboard extends Component<DashboardProps, DashboardState> {
   constructor(props: DashboardProps) {
@@ -83,6 +84,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     this.handleDiffChange = this.handleDiffChange.bind(this);
     this.handleTypeChange = this.handleTypeChange.bind(this);
     this.handleAlertClose = this.handleAlertClose.bind(this);
+    this.deleteAccount = this.deleteAccount.bind(this);
   }
 
   handleSubmit() {
@@ -194,6 +196,12 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
     })
   }
 
+  deleteAccount(){
+    socket.emit("deleteaccount", {userId: this.props.userId, token: this.props.token}, (response: any) =>{
+      this.props.clearToken();
+    })
+  }
+
   componentDidMount() {
     if (this.props.userId > 0) {
       this.getGameHistory();
@@ -203,8 +211,18 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
 
   render() {
     const buttonStyle = { margin: "10px", width: "130px" };
+    const deleteBtnStyle = { margin: "10px", width: "200px" };
     const selectStyle = { marginTop: "5px", marginBottom: "5px" };
-    const cardStyle = { marginTop: "10px", background: "#E8E8E8"}
+    const cardStyle = { marginTop: "10px", background: "#E8E8E8" }
+    if(!this.props.token){
+      return(
+        <Redirect
+        to={{
+          pathname: "/home",
+        }}
+      />
+      )
+    }
     if (this.props.gameId) {
       return (
         <Redirect
@@ -345,11 +363,11 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
         </Card>
         <Divider />
         <Card style={cardStyle}>
-          <CardContent style={{background: "#F05454", height: "25px"}}>
-            <Typography style={{color:"#E8E8E8"}}  variant="h5" align="center">Hosted Game History</Typography>
-            </CardContent>
-            <CardContent>
-            {this.state.completedGames.map((row: any)=>(
+          <CardContent style={{ background: "#F05454", height: "25px" }}>
+            <Typography style={{ color: "#E8E8E8" }} variant="h5" align="center">Hosted Game History</Typography>
+          </CardContent>
+          <CardContent>
+            {this.state.completedGames.map((row: any) => (
               <Accordion key={row.gameId}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} id={row.gameId}>
                   {row.gameId}
@@ -358,10 +376,17 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
                   <Typography>Winner: {row.winner}</Typography>
                   <Typography></Typography>
                 </AccordionDetails>
-                </Accordion>
-            ))} 
+              </Accordion>
+            ))}
           </CardContent>
         </Card>
+        <Button
+          type="submit"
+          variant="contained" 
+          color="secondary"
+          style={deleteBtnStyle}
+          onClick={this.deleteAccount}
+        >Delete Account</Button>
       </>
     );
   }
