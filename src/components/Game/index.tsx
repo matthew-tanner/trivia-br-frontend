@@ -83,7 +83,7 @@ export class Game extends Component<GameProps, GameState> {
   }
 
   endGame() {
-    socket.emit("endgame", { gameId: this.props.gameId });
+    socket.emit("endgame", { gameId: this.props.gameId, winner: this.state.leader});
   }
 
   getNextQuestion() {
@@ -265,12 +265,11 @@ export class Game extends Component<GameProps, GameState> {
 
     if (this.state.currentQuestionId === this.props.questions.length - 1) {
       winnerDialog = (
-        <Dialog style={{ background: "lightblue" }} fullWidth open={this.state.open} onClose={this.handleClose}>
-          <DialogTitle>Game Results</DialogTitle>
+        <Dialog style={{ background: "lightgreen" }} fullWidth open={this.state.open}  onClose={this.handleClose}>
+          <DialogTitle >Game Results</DialogTitle>
           <DialogContent>
-            <Typography>!!!WINNER!!!</Typography>
-            <Divider />
-            <Typography>{this.state.leader}</Typography>
+            <Typography align="center" color="primary" variant="h4">!! WINNER !!</Typography>
+            <Typography align="center" color="primary" variant="h4">{this.state.leader}</Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose}>Finish</Button>

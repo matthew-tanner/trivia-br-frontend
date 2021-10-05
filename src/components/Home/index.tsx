@@ -143,7 +143,7 @@ export class Home extends Component<HomeProps, HomeState> {
   }
 
   render() {
-    const buttonStyle = { margin: "10px", width: "130px" };
+    const buttonStyle = { margin: "10px", width: "130px", background: "primary" };
     const selectStyle = { marginTop: "5px", marginBottom: "5px" };
     const cardStyle = { marginTop: "10px" }
     if (this.props.gameId) {
@@ -164,7 +164,7 @@ export class Home extends Component<HomeProps, HomeState> {
         <Card style={cardStyle}>
           <CardHeader
             title="Public Games"
-            style={{ textAlign: "center" }}
+            style={{  textAlign: "center", background: "lightgreen",}}
           />
           <Snackbar
             open={this.state.alertOpen}

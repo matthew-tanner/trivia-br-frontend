@@ -34,7 +34,6 @@ interface AppState {
   userId: number;
   displayName: string;
   inGame: boolean;
-  //userList: User[];
   isHost: boolean;
   gameStarted: boolean;
   questions: Question[];
@@ -147,6 +146,7 @@ class App extends React.Component<AppProps, AppState> {
           this.setState({
             userId: response.userId,
             displayName: response.displayName,
+            isAdmin: response.isAdmin
           });
         }
       });
@@ -191,6 +191,7 @@ class App extends React.Component<AppProps, AppState> {
               path="/dashboard"
               component={() => (
                 <Dashboard
+                  token={this.state.token}
                   gameId={this.state.gameId}
                   userId={this.state.userId}
                   displayName={this.state.displayName}
@@ -206,7 +207,7 @@ class App extends React.Component<AppProps, AppState> {
               path="/admin"
               component={() => (
                 <Admin
-                  gameId={this.state.gameId}
+                  token={this.state.token}
                   userId={this.state.userId}
                   displayName={this.state.displayName}
                   isAdmin={this.state.isAdmin}
