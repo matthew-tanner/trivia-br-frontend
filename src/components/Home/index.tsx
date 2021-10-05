@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, InputLabel, MenuItem, Select, Snackbar, TextField } from "@material-ui/core/";
+import { Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, IconButton, InputLabel, MenuItem, Select, Snackbar, TextField, Typography } from "@material-ui/core/";
 import { socket } from "../App";
 import CloseIcon from '@material-ui/icons/Close';
 import { Redirect } from "react-router";
@@ -155,16 +155,20 @@ export class Home extends Component<HomeProps, HomeState> {
         />
       );
     }
-    return (
+    return (<>
+    <Grid container style={{ width: "100%", background: "#595260", marginBottom: "10px"}} alignItems="center"
+        justifyContent="center"><Typography style={{ textAlign: "center", color: "#E8E8E8", height: "20px" }}>Yet Another Trivia Game</Typography></Grid>
+      <Grid container style={{ width: "100%", background: "#595260", margin: 0 }} alignItems="center"
+        justifyContent="center"><img height="75px" src="./favicon.ico" /></Grid>
       <Grid
-        style={{ height: "100%", width: "100%", background:"#595260", margin: 0}}
+        style={{ height: "100%", width: "100%", background: "#595260", margin: 0 }}
         container
         alignItems="center"
         justifyContent="center">
         <Card style={cardStyle}>
           <CardHeader
             title="Public Games"
-            style={{  textAlign: "center", background: "#F05454", color: "#E8E8E8", height:"20px"}}
+            style={{ textAlign: "center", background: "#F05454", color: "#E8E8E8", height: "20px" }}
           />
           <Snackbar
             open={this.state.alertOpen}
@@ -208,7 +212,7 @@ export class Home extends Component<HomeProps, HomeState> {
               <TextField
                 label="Game Code #"
                 placeholder=""
-                style={{marginLeft: "5px", marginRight: "10px"}}
+                style={{ marginLeft: "5px", marginRight: "10px" }}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   this.setState({ joinGameId: e.currentTarget.value });
                 }}
@@ -293,7 +297,7 @@ export class Home extends Component<HomeProps, HomeState> {
             </DialogActions>
           </Dialog>
         </Card>
-      </Grid>
+      </Grid></>
     );
   }
 }
