@@ -62,6 +62,7 @@ export class Admin extends Component<AdminProps, AdminState> {
   }
 
   render() {
+    const headerText = {color: "#E8E8E8"}
     if (!this.props.isAdmin) {
       return (
         <Redirect
@@ -72,21 +73,22 @@ export class Admin extends Component<AdminProps, AdminState> {
       );
     }
     return (
-      <Grid container spacing={3}>
+      <Grid container spacing={3} alignItems="center"
+      justifyContent="center">
         <Grid item xs={12} md={7}>
-          <Card style={{ minHeight: "325px" }} variant="outlined">
-            <CardContent style={{background:"lightgreen"}}>
-              <Typography align="center">Games Completed Today</Typography>
+          <Card style={{ minHeight: "325px", background:"#E8E8E8" }} variant="outlined">
+            <CardContent style={{background:"#F05454"}}>
+              <Typography style={{color: "#E8E8E8"}} align="center">Games Completed Today</Typography>
             </CardContent>
             <Divider />
             <CardContent>
               <TableContainer component={Paper}>
                 <Table size="small">
-                  <TableHead style={{ background: "lightgreen" }}>
+                  <TableHead style={{ background: "#F05454"}}>
                     <TableRow>
-                      <TableCell>Game ID</TableCell>
-                      <TableCell>Host ID</TableCell>
-                      <TableCell>Winner</TableCell>
+                      <TableCell style={headerText}>Game#</TableCell>
+                      <TableCell style={headerText}>Host</TableCell>
+                      <TableCell style={headerText}>Winner</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

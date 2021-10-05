@@ -204,7 +204,7 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
   render() {
     const buttonStyle = { margin: "10px", width: "130px" };
     const selectStyle = { marginTop: "5px", marginBottom: "5px" };
-    const cardStyle = { marginTop: "10px"}
+    const cardStyle = { marginTop: "10px", background: "#E8E8E8"}
     if (this.props.gameId) {
       return (
         <Redirect
@@ -345,8 +345,8 @@ export class Dashboard extends Component<DashboardProps, DashboardState> {
         </Card>
         <Divider />
         <Card style={cardStyle}>
-          <CardContent style={{background: "orange"}}>
-            <Typography  variant="h5" align="center" gutterBottom>Hosted Game History</Typography>
+          <CardContent style={{background: "#F05454", height: "25px"}}>
+            <Typography style={{color:"#E8E8E8"}}  variant="h5" align="center">Hosted Game History</Typography>
             </CardContent>
             <CardContent>
             {this.state.completedGames.map((row: any)=>(

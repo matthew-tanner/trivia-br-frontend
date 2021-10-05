@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       flexGrow: 1,
       width: "100%",
+      background: "#222831"
     },
     title: {
       flexGrow: 1,

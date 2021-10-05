@@ -206,6 +206,7 @@ export class Game extends Component<GameProps, GameState> {
       );
     }
     const buttonStyle = { margin: "1px", minWidth: "150px" };
+    const cardStyle = { minHeight: "325px"}
     const progress = (this.state.counter * 100) / 15
     let startButton;
     let nextButton;
@@ -408,7 +409,7 @@ export class Game extends Component<GameProps, GameState> {
       <Grid container spacing={3}>
         {winnerDialog}
         <Grid item xs={12} md={7}>
-          <Card style={{ minHeight: "325px" }} variant="outlined">
+          <Card style={cardStyle} variant="outlined">
             <CardContent>
               <Typography>
                 {startButton}

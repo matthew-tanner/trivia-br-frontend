@@ -78,7 +78,7 @@ export class UserList extends Component<UserListProps, UserListState> {
               />
           </CardContent>
           <Divider variant="middle" />
-          <CardContent>
+          <CardContent style={{overflow: "auto"}}>
             <List component="nav">
               {this.state.userList.map((user: any) => {
                 return (

@@ -1,21 +1,32 @@
 import React, { Component } from "react";
-import { Button, Grid, Paper, TextField, Typography } from "@material-ui/core";
+import { Button, Grid, Paper, TextField, Typography, Snackbar, IconButton } from "@material-ui/core";
 import { socket } from "../App";
+import CloseIcon from '@material-ui/icons/Close';
+import { Redirect } from "react-router-dom";
 
 interface RegisterState {
   email: string;
   password: string;
   confirmPassword: string;
   displayName: string;
+  alertOpen: boolean;
+  success: boolean;
 }
 
 export class Register extends Component<{}, RegisterState> {
-  state = {
-    email: "",
-    password: "",
-    confirmPassword: "",
-    displayName: "",
-  };
+  constructor(props: any){
+    super(props)
+    this.state = {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      displayName: "",
+      alertOpen: false,
+      success: false,
+    }
+
+    this.handleAlertClose = this.handleAlertClose.bind(this);
+  }
 
   handleSubmit() {
     const {email, password, displayName } = this.state
@@ -23,15 +34,41 @@ export class Register extends Component<{}, RegisterState> {
       "register",
       { email: email, password: password, displayName: displayName },
       (response: any) => {
+        if (response.status === 0){
+          this.setState({alertOpen: true})
+        }else if(response.status === 1){
+          this.setState({success: true})
+        }
       }
     );
   }
 
+  handleAlertClose() {
+    this.setState({ alertOpen: false });
+  }
+
   render() {
+    if (this.state.success) {
+      return <Redirect to="/login" />;
+    }
     const formStyle = { padding: "30px 20px", width: 300, margin: "20px auto" };
     const buttonStyle = { marginTop: "10px" };
     return (
       <Grid container alignItems="center">
+        <Snackbar
+            open={this.state.alertOpen}
+            autoHideDuration={4000}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={this.handleAlertClose}
+            message="Email or Display Name in use..."
+            action={
+              <React.Fragment>
+                <IconButton size="small" aria-label="close" color="inherit" onClick={this.handleAlertClose}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </React.Fragment>
+            }
+          />
         <Paper elevation={20} style={formStyle}>
           <Grid>
             <Typography align="center" variant="h5">

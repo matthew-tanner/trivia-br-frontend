@@ -11,6 +11,7 @@ import { Game } from "../Game";
 import { Dashboard } from "../Dashboard";
 import { Admin } from "../Admin";
 import '@fontsource/roboto';
+import "./styles"
 
 dotenv.config();
 
@@ -136,6 +137,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidMount() {
+    document.body.style.backgroundColor = "#595260";
     const userToken = localStorage.getItem("token") || "";
     if (userToken.length > 0) {
       this.setState({ token: localStorage.getItem("token") || "" });
@@ -154,10 +156,11 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
+    
     return (
-      <Container>
+      <Container style={{background: "#595260", height: "100vh", margin: "auto"}}>
         <MenuAppBar token={this.state.token} clearToken={this.clearToken} isAdmin={this.state.isAdmin} />
-        <div style={{ marginTop: 80 }}>
+        <div style={{background:"#595260", marginTop: 80, width: "100%" }}>
           <Switch>
             <Route exact path="/">
               <Home

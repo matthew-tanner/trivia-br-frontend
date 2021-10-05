@@ -145,7 +145,7 @@ export class Home extends Component<HomeProps, HomeState> {
   render() {
     const buttonStyle = { margin: "10px", width: "130px", background: "primary" };
     const selectStyle = { marginTop: "5px", marginBottom: "5px" };
-    const cardStyle = { marginTop: "10px" }
+    const cardStyle = { marginTop: "10px", background: "#E8E8E8" }
     if (this.props.gameId) {
       return (
         <Redirect
@@ -157,14 +157,14 @@ export class Home extends Component<HomeProps, HomeState> {
     }
     return (
       <Grid
-        style={{ height: "100%" }}
+        style={{ height: "100%", width: "100%", background:"#595260", margin: 0}}
         container
         alignItems="center"
         justifyContent="center">
         <Card style={cardStyle}>
           <CardHeader
             title="Public Games"
-            style={{  textAlign: "center", background: "lightgreen",}}
+            style={{  textAlign: "center", background: "#F05454", color: "#E8E8E8", height:"20px"}}
           />
           <Snackbar
             open={this.state.alertOpen}
@@ -208,6 +208,7 @@ export class Home extends Component<HomeProps, HomeState> {
               <TextField
                 label="Game Code #"
                 placeholder=""
+                style={{marginLeft: "5px", marginRight: "10px"}}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   this.setState({ joinGameId: e.currentTarget.value });
                 }}
